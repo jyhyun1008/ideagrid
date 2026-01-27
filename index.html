@@ -9,7 +9,7 @@
         :root {
             --bg-color: #f8f9fa;
             --grid-color: #e1e4e8;
-            --accent-color: #3b82f6;
+            --accent-color: #ADD8E6;
             --text-color: #333;
             --card-bg: #ffffff;
         }
@@ -63,8 +63,8 @@
             z-index: 10;
             cursor: default;
             display: flex; flex-direction: column;
-            border: 2px solid transparent;
             transition: box-shadow 0.2s;
+            /*border: 2px solid transparent;  선택 시 보더 공간 확보 */
         }
         
         .memo-drag-handle {
@@ -74,6 +74,7 @@
             position: absolute; top:0; left:0;
             z-index: 5;
             border-radius: 12px 12px 0 0;
+            background-color: #ADD8E655;
         }
         .memo-drag-handle:active { cursor: grabbing; }
 
@@ -81,7 +82,7 @@
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
             z-index: 50;
         }
-        .memo.selected { border-color: var(--accent-color); z-index: 60; }
+        .memo.selected { border: 2px solid var(--accent-color); z-index: 60; }
 
         .memo.text { width: 220px; min-height: 120px; padding: 16px; padding-top: 28px; }
         .memo.link { width: 300px; padding: 0; padding-top: 24px; overflow: hidden; font-size: 14px; }
@@ -93,8 +94,15 @@
         .link-desc { font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .link-domain { font-size: 11px; color: #999; margin-top: 8px; text-transform: uppercase; }
 
-        .memo-content { flex-grow: 1; font-size: 14px; line-height: 1.5; pointer-events: none; white-space: pre-wrap; }
+        .memo-content { flex-grow: 1; font-size: 14px; line-height: 1.8; pointer-events: none; white-space: normal; }
         .memo-content h1, .memo-content h2 { font-size: 1.1em; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+        .memo-content ul, .memo-content ol {
+            padding-inline-start: 24px;
+        }
+        .memo-content p, .memo-content ul, .memo-content ol {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
 
         .memo-tools {
             position: absolute; top: 5px; right: 5px;
@@ -126,7 +134,7 @@
         .btn:hover { background: #f1f3f5; transform: translateY(-1px); }
         .btn.primary { background: var(--accent-color); color: white; border: none; }
         .btn.primary:hover { background: #2563eb; }
-        .btn.danger { color: #ef4444; }
+        .btn.danger { color: #FF8DA1; }
 
         #status-bar {
             position: fixed; top: 20px; left: 20px;
@@ -170,12 +178,12 @@
         <button class="btn primary" onclick="app.createMemo()">+ 메모</button>
         <button class="btn" onclick="app.addLink()">🔗 북마크</button>
         <span style="width:1px; height:20px; background:#ddd; margin:0 5px;"></span>
-        <button class="btn" onclick="app.connectSelected()">⚡ 연결</button>
-        <button class="btn" onclick="app.disconnectSelected()" style="color:#e11d48;">💔 끊기</button>
+        <button class="btn" onclick="app.connectSelected()">연결하기</button>
+        <button class="btn" onclick="app.disconnectSelected()" style="color:#FF8DA1;"> 연결 끊기</button>
         <span style="width:1px; height:20px; background:#ddd; margin:0 5px;"></span>
-        <button class="btn" onclick="app.exportData()">💾 저장</button>
-        <button class="btn" onclick="document.getElementById('file-input').click()">📂 열기</button>
-        <button class="btn danger" onclick="app.clearBoard()">🗑 초기화</button>
+        <button class="btn" onclick="app.exportData()">내보내기</button>
+        <button class="btn" onclick="document.getElementById('file-input').click()">불러오기</button>
+        <button class="btn danger" onclick="app.clearBoard()">화면 비우기</button>
     </div>
 
     <input type="file" id="file-input" accept=".json" onchange="app.importData(this)">
@@ -455,8 +463,11 @@ const app = {
         this.ui.mode = 'dragging_memo';
         this.ui.draggedMemoId = id;
         this.ui.lastMouse = { x: e.clientX, y: e.clientY };
-        this.ui.selectedMemoIds.clear();
-        this.ui.selectedMemoIds.add(id);
+        if (this.ui.selectedMemoIds.has(id)) {
+            this.ui.selectedMemoIds.clear();
+        } else {
+            this.ui.selectedMemoIds.add(id);
+        }
         this.render();
     },
 
