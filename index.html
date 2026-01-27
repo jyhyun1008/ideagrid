@@ -193,7 +193,13 @@
     </div>
 
 <script>
+    
+window.oncontextmenu=function() {
+    return false;
+}
+
 const app = {
+    
     data: { memos: [], connections: [] },
     ui: {
         camera: { x: 0, y: 0 },
@@ -429,15 +435,22 @@ const app = {
     },
 
     handleMemoMouseDown(e, id) {
-        if(e.button !== 0) return;
+        if(e.button !== 0 && e.button < 2) return;
         e.stopPropagation();
+
+        if ((e.button === 2)||(e.which === 3)) {
+            if (this.ui.selectedMemoIds.has(id)) this.ui.selectedMemoIds.delete(id);
+            else this.ui.selectedMemoIds.add(id);
+            this.render();
+            return;        
+        }
 
         if (e.shiftKey) {
             if (this.ui.selectedMemoIds.has(id)) this.ui.selectedMemoIds.delete(id);
             else this.ui.selectedMemoIds.add(id);
             this.render();
             return;
-        }
+        } 
 
         this.ui.mode = 'dragging_memo';
         this.ui.draggedMemoId = id;
