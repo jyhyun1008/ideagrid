@@ -466,6 +466,7 @@ const app = {
         if (this.ui.selectedMemoIds.has(id)) {
             this.ui.selectedMemoIds.clear();
         } else {
+            this.ui.selectedMemoIds.clear();
             this.ui.selectedMemoIds.add(id);
         }
         this.render();
