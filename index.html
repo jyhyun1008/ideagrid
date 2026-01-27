@@ -98,7 +98,9 @@
         }
         .memo.selected { border: 2px solid var(--accent-color); z-index: 60; }
 
-        .memo.text { width: 220px; min-height: 120px; max-height: 240px; overflow-y: auto; padding: 16px; padding-top: 28px; }
+        .memo.text { width: 220px; min-height: 120px;  padding: 16px; padding-top: 28px; }
+        .memo.text .memo-content { overflow-y: auto; max-height: 200px;
+        }
         .memo.link { width: 300px; padding: 0; padding-top: 24px; overflow: hidden; font-size: 14px; }
 
         /* 링크 카드 스타일 */
@@ -108,7 +110,7 @@
         .link-desc { font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .link-domain { font-size: 11px; color: #999; margin-top: 8px; text-transform: uppercase; }
 
-        .memo-content { flex-grow: 1; font-size: 14px; line-height: 1.8; pointer-events: none; white-space: normal; }
+        .memo-content { flex-grow: 1; font-size: 14px; line-height: 1.8; white-space: normal; }
         .memo-content h1, .memo-content h2 { font-size: 1.1em; border-bottom: 1px solid #eee; margin-bottom: 5px; }
         .memo-content ul, .memo-content ol {
             padding-inline-start: 24px;
