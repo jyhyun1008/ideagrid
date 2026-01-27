@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaGrid - Infinite Canvas</title>
+    <title>별자리 메모보드 - 무한 캔버스 위의 아이디어 모음집</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -243,7 +243,7 @@
         </div>
     </div>
 
-    <div id="status-bar">Canvas: 0, 0</div>
+    <div id="status-bar">별자리 메모보드! - Canvas: 0, 0</div>
 
     <div id="toolbar">
         <button class="btn primary" onclick="app.createMemo()">+ 메모</button>
@@ -414,7 +414,7 @@ const app = {
         const status = document.getElementById('status-bar');
         world.style.transform = `translate(${this.ui.camera.x}px, ${this.ui.camera.y}px)`;
         viewport.style.backgroundPosition = `${this.ui.camera.x}px ${this.ui.camera.y}px`;
-        status.innerText = `Canvas: ${Math.round(-this.ui.camera.x)}, ${Math.round(-this.ui.camera.y)}`;
+        status.innerText = `별자리 메모보드! - Canvas: ${Math.round(-this.ui.camera.x)}, ${Math.round(-this.ui.camera.y)}`;
     },
 
     render() {
@@ -599,7 +599,7 @@ const app = {
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `mindgrid_${new Date().toISOString().slice(0,10)}.json`;
+        a.href = url; a.download = `constelgrid_${new Date().toISOString().slice(0,10)}.json`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
     },
     importData(input) {
