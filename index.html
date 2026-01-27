@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaGrid - Infinite Canvas</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --grid-color: #e1e4e8;
+            --accent-color: #3b82f6;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            user-select: none;
+        }
+
+        /* 1. 뷰포트 (카메라) */
+        #viewport {
+            width: 100vw; height: 100vh;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            background-image: radial-gradient(var(--grid-color) 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+        #viewport:active { cursor: grabbing; }
+
+        /* 2. 월드 (콘텐츠 컨테이너) */
+        #world {
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 0; /* 크기 0으로 설정하되 내용은 넘치게 */
+            transform-origin: 0 0;
+            will-change: transform;
+        }
+
+        /* SVG 레이어 (수정됨: 크기를 1px로 잡고 overflow: visible로 선이 삐져나오게 함) */
+        #connections-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 1px; height: 1px; 
+            overflow: visible; /* 핵심: 영역 밖의 선도 보이게 함 */
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* --- 메모 스타일 --- */
+        .memo {
+            position: absolute;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            z-index: 10;
+            cursor: default;
+            display: flex; flex-direction: column;
+            border: 2px solid transparent;
+            transition: box-shadow 0.2s;
+        }
+        
+        .memo-drag-handle {
+            height: 24px;
+            cursor: grab;
+            width: 100%;
+            position: absolute; top:0; left:0;
+            z-index: 5;
+            border-radius: 12px 12px 0 0;
+        }
+        .memo-drag-handle:active { cursor: grabbing; }
+
+        .memo:hover {
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            z-index: 50;
+        }
+        .memo.selected { border-color: var(--accent-color); z-index: 60; }
+
+        .memo.text { width: 220px; min-height: 120px; padding: 16px; padding-top: 28px; }
+        .memo.link { width: 300px; padding: 0; padding-top: 24px; overflow: hidden; font-size: 14px; }
+
+        /* 링크 카드 스타일 */
+        .link-image { width: 100%; height: 150px; background: #f1f3f5; object-fit: cover; border-bottom: 1px solid #eee; }
+        .link-info { padding: 12px; }
+        .link-title { font-weight: bold; margin-bottom: 6px; line-height: 1.3; }
+        .link-desc { font-size: 12px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .link-domain { font-size: 11px; color: #999; margin-top: 8px; text-transform: uppercase; }
+
+        .memo-content { flex-grow: 1; font-size: 14px; line-height: 1.5; pointer-events: none; white-space: pre-wrap; }
+        .memo-content h1, .memo-content h2 { font-size: 1.1em; border-bottom: 1px solid #eee; margin-bottom: 5px; }
+
+        .memo-tools {
+            position: absolute; top: 5px; right: 5px;
+            opacity: 0; transition: opacity 0.2s; z-index: 100;
+        }
+        .memo:hover .memo-tools { opacity: 1; }
+        .tool-btn {
+            background: rgba(255,255,255,0.9); border: 1px solid #ddd;
+            border-radius: 50%; width: 24px; height: 24px;
+            cursor: pointer; color: #555; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .tool-btn:hover { color: var(--accent-color); border-color: var(--accent-color); }
+
+        #toolbar {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+            padding: 10px 20px; border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex; gap: 10px; z-index: 1000;
+            align-items: center;
+        }
+        .btn {
+            background: white; border: 1px solid #e1e4e8;
+            padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-weight: 600; color: #555;
+            transition: 0.2s; font-size: 13px; white-space: nowrap;
+        }
+        .btn:hover { background: #f1f3f5; transform: translateY(-1px); }
+        .btn.primary { background: var(--accent-color); color: white; border: none; }
+        .btn.primary:hover { background: #2563eb; }
+        .btn.danger { color: #ef4444; }
+
+        #status-bar {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 12px; color: #999; pointer-events: none;
+            background: rgba(255,255,255,0.5); padding: 5px 10px; border-radius: 10px;
+        }
+
+        /* 에디터 모달 */
+        #editor-modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        #editor-modal.active { display: flex !important; }
+        .modal-card {
+            background: white; padding: 24px; border-radius: 16px;
+            width: 500px; max-width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+        }
+        textarea {
+            width: 100%; height: 200px; margin: 15px 0; padding: 15px;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            font-family: monospace; resize: none;
+        }
+        #file-input { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="viewport">
+        <div id="world">
+            <svg id="connections-layer"></svg>
+            <div id="memos-layer"></div>
+        </div>
+    </div>
+
+    <div id="status-bar">Canvas: 0, 0</div>
+
+    <div id="toolbar">
+        <button class="btn primary" onclick="app.createMemo()">+ 메모</button>
+        <button class="btn" onclick="app.addLink()">🔗 북마크</button>
+        <span style="width:1px; height:20px; background:#ddd; margin:0 5px;"></span>
+        <button class="btn" onclick="app.connectSelected()">⚡ 연결</button>
+        <button class="btn" onclick="app.disconnectSelected()" style="color:#e11d48;">💔 끊기</button>
+        <span style="width:1px; height:20px; background:#ddd; margin:0 5px;"></span>
+        <button class="btn" onclick="app.exportData()">💾 저장</button>
+        <button class="btn" onclick="document.getElementById('file-input').click()">📂 열기</button>
+        <button class="btn danger" onclick="app.clearBoard()">🗑 초기화</button>
+    </div>
+
+    <input type="file" id="file-input" accept=".json" onchange="app.importData(this)">
+
+    <div id="editor-modal">
+        <div class="modal-card">
+            <h3>메모 편집</h3>
+            <textarea id="editor-textarea"></textarea>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="btn danger" onclick="app.deleteCurrentMemo()" style="margin-right: auto;">삭제</button>
+                <button class="btn" onclick="app.closeEditor()">취소</button>
+                <button class="btn primary" onclick="app.saveEditor()">확인</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+const app = {
+    data: { memos: [], connections: [] },
+    ui: {
+        camera: { x: 0, y: 0 },
+        selectedMemoIds: new Set(),
+        mode: 'idle', 
+        lastMouse: { x: 0, y: 0 },
+        draggedMemoId: null,
+        editingId: null
+    },
+    
+    init() {
+        this.loadFromStorage();
+        this.updateTransform(); 
+        this.render();
+        this.setupEvents();
+    },
+
+    getCenterCoordinates() {
+        return {
+            x: -this.ui.camera.x + window.innerWidth / 2,
+            y: -this.ui.camera.y + window.innerHeight / 2
+        };
+    },
+
+    createMemo(content = '') {
+        const center = this.getCenterCoordinates();
+        this.data.memos.push({
+            id: 'memo_' + Date.now(),
+            type: 'text',
+            content: content || '# 아이디어\n내용을 입력하세요.',
+            x: center.x - 110 + (Math.random() * 40 - 20),
+            y: center.y - 60 + (Math.random() * 40 - 20)
+        });
+        this.render();
+        this.saveToStorage();
+    },
+
+    async addLink() {
+        const url = prompt("북마크할 URL (유튜브, 블로그 등):");
+        if (!url) return;
+        const center = this.getCenterCoordinates();
+        const tempId = 'memo_' + Date.now();
+        
+        this.data.memos.push({
+            id: tempId, type: 'text', content: '⏳ 정보 불러오는 중...',
+            x: center.x - 150, y: center.y - 80
+        });
+        this.render();
+
+        try {
+            const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+            const json = await res.json();
+
+            if (json.status === 'success') {
+                const meta = json.data;
+                const idx = this.data.memos.findIndex(m => m.id === tempId);
+                if(idx !== -1) {
+                    const placeholder = this.data.memos[idx];
+                    this.data.memos[idx] = {
+                        id: tempId, type: 'link', url: url,
+                        meta: {
+                            title: meta.title || url,
+                            desc: meta.description || '',
+                            image: meta.image ? meta.image.url : null,
+                            publisher: meta.publisher || new URL(url).hostname
+                        },
+                        x: placeholder.x, y: placeholder.y
+                    };
+                }
+            } else { throw new Error(); }
+        } catch (e) {
+            const idx = this.data.memos.findIndex(m => m.id === tempId);
+            if(idx !== -1) this.data.memos[idx].content = url;
+        }
+        this.render();
+        this.saveToStorage();
+    },
+
+    // --- 연결 생성 ---
+    connectSelected() {
+        const ids = Array.from(this.ui.selectedMemoIds);
+        if (ids.length !== 2) { alert("연결하려면 Shift+클릭으로 2개를 선택하세요."); return; }
+        
+        const exists = this.data.connections.some(c => 
+            (c.from === ids[0] && c.to === ids[1]) || (c.from === ids[1] && c.to === ids[0])
+        );
+        if (!exists) {
+            this.data.connections.push({ from: ids[0], to: ids[1] });
+            this.ui.selectedMemoIds.clear();
+            this.render();
+            this.saveToStorage();
+        }
+    },
+
+    // --- [NEW] 연결 끊기 ---
+    disconnectSelected() {
+        const ids = Array.from(this.ui.selectedMemoIds);
+        if (ids.length !== 2) { alert("연결을 끊으려면 Shift+클릭으로 연결된 2개를 선택하세요."); return; }
+
+        // 기존 연결 목록에서 선택된 두 ID의 조합을 제거
+        const initialCount = this.data.connections.length;
+        this.data.connections = this.data.connections.filter(c => 
+            !((c.from === ids[0] && c.to === ids[1]) || (c.from === ids[1] && c.to === ids[0]))
+        );
+
+        if (this.data.connections.length === initialCount) {
+            alert("두 메모는 연결되어 있지 않습니다.");
+        } else {
+            this.ui.selectedMemoIds.clear();
+            this.render();
+            this.saveToStorage();
+        }
+    },
+
+    // --- Rendering ---
+    
+    updateTransform() {
+        const world = document.getElementById('world');
+        const viewport = document.getElementById('viewport');
+        const status = document.getElementById('status-bar');
+        world.style.transform = `translate(${this.ui.camera.x}px, ${this.ui.camera.y}px)`;
+        viewport.style.backgroundPosition = `${this.ui.camera.x}px ${this.ui.camera.y}px`;
+        status.innerText = `Canvas: ${Math.round(-this.ui.camera.x)}, ${Math.round(-this.ui.camera.y)}`;
+    },
+
+    render() {
+        const memosLayer = document.getElementById('memos-layer');
+        const connectionsLayer = document.getElementById('connections-layer');
+        memosLayer.innerHTML = '';
+        connectionsLayer.innerHTML = ''; // SVG 초기화
+
+        // 메모 렌더링
+        this.data.memos.forEach(memo => {
+            const el = document.createElement('div');
+            el.className = `memo ${memo.type} ${this.ui.selectedMemoIds.has(memo.id) ? 'selected' : ''}`;
+            el.style.left = `${memo.x}px`;
+            el.style.top = `${memo.y}px`;
+            el.dataset.id = memo.id;
+
+            let innerHTML = '';
+            if (memo.type === 'link') {
+                const imgTag = memo.meta.image ? `<img src="${memo.meta.image}" class="link-image">` : `<div class="link-image" style="background:#f1f3f5;"></div>`;
+                innerHTML = `
+                    ${imgTag}
+                    <div class="link-info">
+                        <div class="link-title">${memo.meta.title}</div>
+                        <div class="link-desc">${memo.meta.desc}</div>
+                        <div class="link-domain">🔗 ${memo.meta.publisher}</div>
+                    </div>
+                `;
+            } else {
+                const md = typeof marked !== 'undefined' ? marked.parse(memo.content) : memo.content;
+                innerHTML = `<div class="memo-content">${md}</div>`;
+            }
+
+            el.innerHTML = `
+                <div class="memo-drag-handle"></div>
+                <div class="memo-tools">
+                    <button class="tool-btn edit-btn">✎</button>
+                </div>
+                ${innerHTML}
+                ${memo.type === 'link' ? `<a href="${memo.url}" target="_blank" style="position:absolute;top:24px;left:0;width:100%;bottom:0;" onclick="event.stopPropagation()"></a>` : ''}
+            `;
+
+            el.addEventListener('mousedown', (e) => this.handleMemoMouseDown(e, memo.id));
+            el.querySelector('.edit-btn').addEventListener('mousedown', (e) => {
+                e.stopPropagation(); e.preventDefault();
+                this.openEditor(memo.id);
+            });
+            memosLayer.appendChild(el);
+        });
+
+        // 선 렌더링
+        this.data.connections.forEach(conn => {
+            const from = this.data.memos.find(m => m.id === conn.from);
+            const to = this.data.memos.find(m => m.id === conn.to);
+            if (from && to) {
+                const w1 = from.type === 'link' ? 300 : 220; const h1 = from.type === 'link' ? 250 : 120;
+                const w2 = to.type === 'link' ? 300 : 220; const h2 = to.type === 'link' ? 250 : 120;
+                
+                const x1 = from.x + w1/2, y1 = from.y + h1/2;
+                const x2 = to.x + w2/2, y2 = to.y + h2/2;
+                const dist = Math.abs(x2 - x1) * 0.5;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", `M ${x1} ${y1} C ${x1 + dist} ${y1}, ${x2 - dist} ${y2}, ${x2} ${y2}`);
+                path.setAttribute("stroke", "#cbd5e1");
+                path.setAttribute("stroke-width", "3");
+                path.setAttribute("fill", "none");
+                connectionsLayer.appendChild(path);
+            }
+        });
+    },
+
+    // --- Interaction ---
+    setupEvents() {
+        const viewport = document.getElementById('viewport');
+        viewport.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'viewport' || e.target.id === 'world' || e.target.id === 'connections-layer') {
+                this.ui.mode = 'panning';
+                this.ui.lastMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (this.ui.mode === 'panning') {
+                const dx = e.clientX - this.ui.lastMouse.x;
+                const dy = e.clientY - this.ui.lastMouse.y;
+                this.ui.camera.x += dx; this.ui.camera.y += dy;
+                this.updateTransform();
+                this.ui.lastMouse = { x: e.clientX, y: e.clientY };
+            } else if (this.ui.mode === 'dragging_memo' && this.ui.draggedMemoId) {
+                const dx = e.clientX - this.ui.lastMouse.x;
+                const dy = e.clientY - this.ui.lastMouse.y;
+                const memo = this.data.memos.find(m => m.id === this.ui.draggedMemoId);
+                if (memo) {
+                    memo.x += dx; memo.y += dy;
+                    const el = document.querySelector(`.memo[data-id="${memo.id}"]`);
+                    if(el) { el.style.left = memo.x+'px'; el.style.top = memo.y+'px'; }
+                    requestAnimationFrame(() => this.render());
+                }
+                this.ui.lastMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (this.ui.mode !== 'idle') {
+                this.ui.mode = 'idle';
+                this.ui.draggedMemoId = null;
+                this.saveToStorage();
+            }
+        });
+    },
+
+    handleMemoMouseDown(e, id) {
+        if(e.button !== 0) return;
+        e.stopPropagation();
+
+        if (e.shiftKey) {
+            if (this.ui.selectedMemoIds.has(id)) this.ui.selectedMemoIds.delete(id);
+            else this.ui.selectedMemoIds.add(id);
+            this.render();
+            return;
+        }
+
+        this.ui.mode = 'dragging_memo';
+        this.ui.draggedMemoId = id;
+        this.ui.lastMouse = { x: e.clientX, y: e.clientY };
+        this.ui.selectedMemoIds.clear();
+        this.ui.selectedMemoIds.add(id);
+        this.render();
+    },
+
+    // --- Editor & ETC ---
+    openEditor(id) {
+        this.ui.editingId = id;
+        const memo = this.data.memos.find(m => m.id === id);
+        const val = memo.type === 'link' ? memo.url : memo.content;
+        document.getElementById('editor-textarea').value = val;
+        document.getElementById('editor-modal').classList.add('active');
+    },
+    closeEditor() {
+        document.getElementById('editor-modal').classList.remove('active');
+        this.ui.editingId = null;
+    },
+    saveEditor() {
+        if (!this.ui.editingId) return;
+        const val = document.getElementById('editor-textarea').value;
+        const memo = this.data.memos.find(m => m.id === this.ui.editingId);
+        if (memo) {
+            if (memo.type === 'link') memo.url = val;
+            else memo.content = val;
+            this.render(); this.saveToStorage();
+        }
+        this.closeEditor();
+    },
+    deleteCurrentMemo() {
+        if(confirm('삭제하시겠습니까?')) {
+            this.data.memos = this.data.memos.filter(m => m.id !== this.ui.editingId);
+            this.data.connections = this.data.connections.filter(c => c.from !== this.ui.editingId && c.to !== this.ui.editingId);
+            this.closeEditor(); this.render(); this.saveToStorage();
+        }
+    },
+    clearBoard() {
+        if(confirm("초기화 하시겠습니까?")) {
+            this.data = { memos: [], connections: [] };
+            this.ui.camera = { x: 0, y: 0 };
+            this.updateTransform();
+            this.render(); this.saveToStorage();
+        }
+    },
+    exportData() {
+        const dataStr = JSON.stringify(this.data, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `mindgrid_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    },
+    importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                this.data = JSON.parse(e.target.result);
+                this.ui.camera = { x: 0, y: 0 };
+                this.updateTransform();
+                this.render(); this.saveToStorage();
+            } catch (err) { alert("파일 오류"); }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    },
+    saveToStorage() { localStorage.setItem('mindgrid_final', JSON.stringify(this.data)); },
+    loadFromStorage() {
+        const d = localStorage.getItem('mindgrid_final');
+        if(d) this.data = JSON.parse(d);
+    }
+};
+
+app.init();
+</script>
+</body>
+</html>
