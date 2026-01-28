@@ -295,7 +295,7 @@ if (localStorage.getItem('lightdark')) {
 
 async function getData() {
     if (localStorage.getItem('accessToken')){
-        var user = await fetch(`https://${localStorage.getItem('host')}/i`, {
+        var user = await fetch(`https://${localStorage.getItem('host')}/api/i`, {
             method: 'POST',
             body: JSON.stringify({}),
             headers: {
