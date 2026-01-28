@@ -85,13 +85,16 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard';}
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
             user-select: none;
         }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
         /* 1. 뷰포트 (카메라) */
         #viewport {
             width: 100vw; height: 100vh;
@@ -252,6 +255,7 @@
         <button class="btn" onclick="app.connectSelected()">연결하기</button>
         <button class="btn danger" onclick="app.disconnectSelected()"> 연결 끊기</button>
         <span style="width:1px; height:20px; background:var(--tool-border); margin:0 5px;"></span>
+        <button class="btn"><a href="/login.html">로그인</a></button>
         <button class="btn" onclick="app.exportData()">내보내기</button>
         <button class="btn" onclick="document.getElementById('file-input').click()">불러오기</button>
         <button class="btn danger" onclick="app.clearBoard()">화면 비우기</button>
@@ -278,6 +282,17 @@ window.oncontextmenu=function() {
     return false;
 }
 
+if (localStorage.getItem('lightdark')) {
+    if (localStorage.getItem('lightdark') == 'light') {
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        document.querySelector('#toggledark').innerText = '밤하늘'
+        localStorage.setItem('lightdark', 'light')
+    }
+} else {
+    localStorage.setItem('lightdark', 'dark')
+}
+
 const app = {
     
     data: { memos: [], connections: [] },
@@ -302,10 +317,12 @@ const app = {
             document.body.classList.remove('dark-mode');
             document.body.classList.add('light-mode');
             document.querySelector('#toggledark').innerText = '밤하늘'
+            localStorage.setItem('lightdark', 'light')
         } else {
             document.body.classList.remove('light-mode');
             document.body.classList.add('dark-mode');
             document.querySelector('#toggledark').innerText = '파란하늘'
+            localStorage.setItem('lightdark', 'dark')
         }
     },
 

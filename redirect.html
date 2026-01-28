@@ -1,0 +1,26 @@
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const code = urlParams.get('code');
+
+    fetch(localStorage.getItem('token_endpoint'), {
+    method: "POST",
+    body: JSON.stringify({
+        grant_type: "authorization_code",
+        client_id: "https://grid.howeverina.studio/login.html",
+        redirect_uri: "https://grid.howeverina.studio/redirect.html",
+        scope: "read:account write:notes read:reactions",
+        code: code,
+        code_verifier: localStorage.getItem('code_verifier'),
+    }),
+    headers: {
+        "Content-Type": "application/json"
+    }
+    })
+    .then(response => response.json())
+    .then((res) => {
+        localStorage.setItem('accessToken', res.access_token)
+        location.href="https://grid.howeverina.studio/index.html"
+    })
+
+</script>

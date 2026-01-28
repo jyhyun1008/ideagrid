@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>별자리 메모보드 - 무한 캔버스 위의 아이디어 모음집</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --lightgray-color: var(--lightgray-color);
+            --grid-color: #e1e4e8;
+            --accent-color: #ADD8E6;
+            --tool-border: #ddd;
+            --tool-bg: #ffffff88;
+            --tool-fg: #555;
+            --accent-light-color: #ADD8E655;
+            --accent-snd-color: #b5c2ff;
+            --danger-color: #FF8DA1;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        .dark-mode {
+            --bg-color: #2e313d;
+            --lightgray-color: #424755;
+            --grid-color: #585d6e;
+            --accent-color: #6b63a5;
+            --tool-border: #6f7486;
+            --tool-bg: #1b1d2588;
+            --tool-fg: #d8dbe7;
+            --accent-light-color: #6b63a58b;
+            --accent-snd-color: #637ea5;
+            --danger-color: #6b63a5;
+            --text-color: #f8f9fa;
+            --card-bg: #1b1d25;
+        }
+
+        .light-mode {
+            --bg-color: #f8f9fa;
+            --lightgray-color: #f1f3f5;
+            --grid-color: #e1e4e8;
+            --accent-color: #ADD8E6;
+            --tool-border: #ddd;
+            --tool-bg: #ffffff88;
+            --tool-fg: #555;
+            --accent-light-color: #ADD8E655;
+            --accent-snd-color: #b5c2ff;
+            --danger-color: #FF8DA1;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #2e313d;
+                --lightgray-color: #424755;
+                --grid-color: #585d6e;
+                --accent-color: #6b63a5;
+                --tool-border: #6f7486;
+                --tool-bg: #1b1d2588;
+                --tool-fg: #d8dbe7;
+                --accent-light-color: #6b63a58b;
+                --accent-snd-color: #637ea5;
+                --danger-color: #6b63a5;
+                --text-color: #f8f9fa;
+                --card-bg: #1b1d25;
+            }
+        }   
+
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Bold.woff2') format('woff2');
+            font-weight: 700;
+            font-display: swap;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard';}
+        
+        body {
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 14px; 
+        }
+
+        #status-bar {
+            position: fixed; top: 20px; left: 20px;
+            font-size: 12px; color: #999; pointer-events: none;
+            background: var(--tool-bg); padding: 5px 10px; border-radius: 10px;
+            text-decoration: none;
+        }
+        #toolbar {
+            padding: 10px 20px;
+            display: flex; gap: 10px;
+            align-items: center;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .btn {
+            background: var(--card-bg); border: 1px solid var(--grid-color);
+            padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-weight: 600; color: var(--tool-fg);
+            transition: 0.2s; font-size: 13px; white-space: nowrap;
+        }
+        .btn:hover { background: var(--lightgray-color); transform: translateY(-1px); }
+        .btn.primary { background: var(--accent-color); color: white; border: none; }
+        .btn.primary:hover { background: var(--accent-snd-color) }
+        .btn.danger { color: var(--danger-color); }
+
+        #parent-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100dvh;
+            background-image: radial-gradient(var(--grid-color) 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+
+        #about-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px;
+            background: var(--card-bg); backdrop-filter: blur(5px);
+            border-radius: 30px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex; gap: 10px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #about-wrapper>*:not(h3) {
+            width: 100%;
+        }
+        ul, ol {
+            padding-inline-start: 24px;
+        }
+
+    </style>
+</head>
+<body class="dark-mode">
+    <!-- (필수항목) href의 주소가 인증코드의 전송처가 됩니다. -->
+    <link rel='redirect_uri' href='/redirect.html'>
+
+    <!-- 사용자에게 보여줄 앱의 이름입니다. 없으면 이 페이지의 주소가 이름이 됩니다. -->
+    <div class='h-app'>
+        <a href="/index.html" class="u-url p-name" id="status-bar">ConstelGrid</a>
+    </div>
+
+    <div id="parent-wrapper">
+        <div id="about-wrapper">
+            <h3>별자리 메모보드!</h3>
+            <ul>
+                <li>미스키에서 로그인해서 사용해보세요.</li>
+            </ul>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/oauth-pkce@latest/dist/oauth-pkce.min.js"></script>
+<script>
+
+    if (localStorage.getItem('lightdark')) {
+        if (localStorage.getItem('lightdark') == 'light') {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+        }
+    }
+</script>
+</body>
