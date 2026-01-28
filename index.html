@@ -669,8 +669,6 @@ const app = {
         localStorage.setItem('mindgrid_final', JSON.stringify(this.data)); 
 
         if (remoteHostId) {
-
-            console.log(localStorage.getItem('accessToken'))
             var update = await fetch(`https://${localStorage.getItem('host')}/api/users/update-memo`, {
                 method: 'POST',
                 body: JSON.stringify({  
@@ -683,7 +681,6 @@ const app = {
                 },
                 credentials: 'omit',
             })
-            var updateJSON = await update.json()
         }
     },
     async loadFromStorage() {
@@ -712,6 +709,7 @@ const app = {
             const d = localStorage.getItem('mindgrid_final');
             if(d) this.data = JSON.parse(d);
         }
+    this.render();
 }
 };
 
