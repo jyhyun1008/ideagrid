@@ -701,8 +701,8 @@ const app = {
             var userJSON = await user.json()
             if (userJSON.memo) {
                 this.data = JSON.parse(userJSON.memo)
+                console.log(this.data)
                 this.render();
-                console.log(JSON.parse(userJSON.memo))
             } else {
                 const d = localStorage.getItem('mindgrid_final');
                 if(d) this.data = JSON.parse(d);
