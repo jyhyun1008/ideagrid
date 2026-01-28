@@ -679,10 +679,12 @@ const app = {
                     credentials: 'omit',
                 })
                 const fileJSON = await mifile.json()
-                console.log(fileJSON)
                 if (fileJSON.length > 0) {
                     const data = await fetch(fileJSON[0].url, {mode: 'no-cors'})
-                    const dataText = await data.json()
+                    const dataText = await data.text()
+                    console.log(dataText)
+
+                    this.data = JSON.parse(dataText)
                     this.render()
                 }
             }
