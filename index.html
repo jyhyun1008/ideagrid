@@ -670,6 +670,7 @@ const app = {
 
         if (remoteHostId) {
 
+            console.log(auth)
             var update = await fetch(`https://${localStorage.getItem('host')}/api/users/update-memo`, {
                 method: 'POST',
                 body: JSON.stringify({  
