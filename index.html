@@ -659,6 +659,7 @@ const app = {
                     }),
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
                     },
                     credentials: 'omit',
                 })
@@ -683,7 +684,6 @@ const app = {
                     body: formData,
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                        'Content-Type': 'application/json',
                     },
                     credentials: 'omit',
                 })
