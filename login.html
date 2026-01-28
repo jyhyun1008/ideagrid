@@ -182,6 +182,21 @@
         }
     }
 
+    async function fetchServer(host) {
+        const oauthResult = await fetch(`https://${host}/.well-known/oauth-authorization-server`)
+        oauthInfo = await oauthResult.json()
+        console.log(oauthInfo)
+
+        let authorization_endpoint = oauthInfo.authorization_endpoint
+        let token_endpoint = oauthInfo.token_endpoint
+        localStorage.setItem('token_endpoint', token_endpoint)
+        localStorage.setItem('host', host)
+        localStorage.setItem('code_verifier', codeVerifier);
+
+        console.log(`${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Adrive%20write%3Adrive&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`)
+        location.href = `${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Adrive%20write%3Adrive&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`
+    }
+
     if (!localStorage.getItem('accessToken')) {
 
         let codeChallenge
@@ -199,20 +214,6 @@
             }
         });
 
-        async function fetchServer(host) {
-            const oauthResult = await fetch(`https://${host}/.well-known/oauth-authorization-server`)
-            oauthInfo = await oauthResult.json()
-            console.log(oauthInfo)
-
-            let authorization_endpoint = oauthInfo.authorization_endpoint
-            let token_endpoint = oauthInfo.token_endpoint
-            localStorage.setItem('token_endpoint', token_endpoint)
-            localStorage.setItem('host', host)
-            localStorage.setItem('code_verifier', codeVerifier);
-
-            console.log(`${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Adrive%20write%3Adrive&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`)
-            location.href = `${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Adrive%20write%3Adrive&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`
-        }
     } else {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('code_verifier')
