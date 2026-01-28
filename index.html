@@ -208,6 +208,9 @@
         .btn.primary { background: var(--accent-color); color: white; border: none; }
         .btn.primary:hover { background: var(--accent-snd-color) }
         .btn.danger { color: var(--danger-color); }
+        .btn.misskey {
+            background: #86b300; color: white;
+        }
 
         #status-bar {
             position: fixed; top: 20px; left: 20px;
@@ -256,7 +259,7 @@
         <button class="btn danger" onclick="app.disconnectSelected()"> 연결 끊기</button>
         <span style="width:1px; height:20px; background:var(--tool-border); margin:0 5px;"></span>
         <button class="btn" id="signin"><a href="/login.html">로그인</a></button>
-        <button class="btn" onclick="app.exportData()">내보내기</button>
+        <button class="btn" id="export" onclick="app.exportData()">내보내기</button>
         <button class="btn" onclick="document.getElementById('file-input').click()">불러오기</button>
         <button class="btn danger" onclick="app.clearBoard()">화면 비우기</button>
         <button class="btn" id="toggledark" onclick="app.toggledark()">파란하늘</button>
@@ -295,6 +298,9 @@ if (localStorage.getItem('lightdark')) {
 
 if (localStorage.getItem('accessToken')) {
     document.querySelector('#signin').innerText = '로그아웃'
+    document.querySelector('#signin').classList.add('misskey')
+    document.querySelector('#export').innerText = '↺동기화'
+    document.querySelector('#export').classList.add('misskey')
 }
 
 const app = {
