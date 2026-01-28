@@ -200,8 +200,6 @@
         location.href = `${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Adrive%20write%3Adrive&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`
     }
 
-    if (!localStorage.getItem('accessToken')) {
-
         let codeChallenge
         let codeVerifier
 
@@ -216,8 +214,7 @@
                 codeVerifier = verifier
             }
         });
-
-    } else {
+    if (localStorage.getItem('accessToken')) {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('code_verifier')
         localStorage.removeItem('token_endpoint')
