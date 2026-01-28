@@ -293,6 +293,24 @@ if (localStorage.getItem('lightdark')) {
     localStorage.setItem('lightdark', 'dark')
 }
 
+async function getData() {
+    if (localStorage.getItem('accessToken')){
+        var user = await fetch(`https://${localStorage.getItem('host')}/i`, {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                'Content-Type': 'application/json',
+            },
+            credentials: 'omit',
+        })
+        var userJSON = await user.json()
+        console.log(userJSON.id)
+    }
+}
+
+getData()
+
 const app = {
     
     data: { memos: [], connections: [] },
