@@ -680,11 +680,11 @@ const app = {
                 })
                 const fileJSON = await mifile.json()
                 if (fileJSON.length > 0) {
-                    const data = await fetch(fileJSON[0].url, {mode: 'no-cors'})
-                    const dataText = await data.text()
-                    console.log(dataText)
+                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(fileJSON[0].url);
+                    const data = await fetch(proxyUrl)
+                    const dataJSON = await data.json()
 
-                    this.data = JSON.parse(dataText)
+                    this.data = dataJSON
                     this.render()
                 }
             }
