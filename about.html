@@ -85,10 +85,18 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard';}
         
         body {
-            overflow: hidden;
+            overflow-x: hidden;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-size: 14px; 
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        blockquote {
+            background-color: var(--bg-color);
+            border-radius: 10px;
+            padding: 0 10px;
+            border-left: 2px solid var(--accent-color);
         }
 
         #status-bar {
@@ -122,9 +130,9 @@
             align-items: center;
             justify-content: center;
             width: 100vw;
-            height: 100dvh;
             background-image: radial-gradient(var(--grid-color) 2px, transparent 2px);
             background-size: 24px 24px;
+            padding: 5rem 0;
         }
 
         #about-wrapper {
@@ -141,7 +149,7 @@
             justify-content: center;
         }
 
-        #about-wrapper>*:not(h3) {
+        #about-wrapper>*:not(.center) {
             width: 100%;
         }
         ul, ol {
@@ -151,20 +159,27 @@
     </style>
 </head>
 <body class="dark-mode">
-    <!-- (필수항목) href의 주소가 인증코드의 전송처가 됩니다. -->
-    <link rel='redirect_uri' href='/redirect.html'>
-
-    <!-- 사용자에게 보여줄 앱의 이름입니다. 없으면 이 페이지의 주소가 이름이 됩니다. -->
-    <div class='h-app'>
-        <a href="/index.html" class="u-url p-name" id="status-bar">ConstelGrid</a>
-    </div>
 
     <div id="parent-wrapper">
         <div id="about-wrapper">
-            <h3>별자리 메모보드!</h3>
-            <ul>
-                <li>미스키에서 로그인해서 사용해보세요.</li>
+            <h2 class="center">별자리 메모보드!</h2>
+            <img src="assets/example.png" />
+            <blockquote>별과 별들을 잇는 **별자리**처럼, 나의 생각을 이어주는 메모보드.</blockquote>
+            <p>별자리 메모보드는 아직 시험 단계이며, 서버 없이 브라우저 상에서만 동작합니다.</p>
+            <h3>기능</h3>
+            <ul>                
+                <li><b>무한한 캔버스</b>: 넓은 캔버스에 여러분의 상상력을 자유롭게 펼쳐보세요.</li>
+                <li><b>메모</b>: 일반 노트입니다. <b>마크다운 문법</b>을 사용할 수 있습니다.</li>
+                <li><b>북마크</b>: 온라인 상의 어떤 페이지든 북마크할 수 있습니다. 일반 메모상자보다 조금 크게 표시됩니다.</li>
+                <li><b>자유로운 연결/해제</b>: 캔버스 상의 메모와 북마크들을 제약 없이 연결할 수 있습니다.</li>
+                <li><b>로컬스토리지 저장</b>: 캔버스의 데이터는 서버 없이 브라우저에 안전하게 저장됩니다. 만약 브라우저에서 로컬스토리지 데이터를 삭제하면 데이터가 휘발될 수 있습니다. 그러니 저장 기능을 꼭 사용해주세요.</li>
+                <li><b>열기/저장</b>: 만들어진 캔버스를 로컬에 저장하고 불러올 수 있습니다.</li>
+                <li><b>테마</b>: 다크/라이트 모드 중에서 선택하실 수 있습니다.</li>
+                <li><b>미스키 로그인</b>: 연합우주 인스턴스 중에서도 <b>미스키</b>에 계정을 가지고 계신 분들의 경우, 미스키 드라이브를 이용한 기기 간 연동이 가능합니다. 완전히 동기화는 아니고, 새로운 기기로 옮겨가기 전 내용을 <i>저장해야</i> 하며, 새로운 기기에서 접속할 때마다 내용을 <i>불러와야</i> 합니다. 일단 미스키에 로그인하면 <b>열기/저장</b> 과정이 미스키 드라이브에서 수행됩니다.</li>
             </ul>
+            <div id="toolbar" class="center">
+                <span class="btn"><a href="/index.html">돌아가기</a></span>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/oauth-pkce@latest/dist/oauth-pkce.min.js"></script>
