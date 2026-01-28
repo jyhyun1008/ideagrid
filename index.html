@@ -672,7 +672,6 @@ const app = {
 
             var update = await fetch(`https://${localStorage.getItem('host')}/api/users/update-memo`, {
                 method: 'POST',
-                mode: "no-cors",
                 body: JSON.stringify({  
                     userId: remoteHostId,
                     memo: localStorage.getItem('mindgrid_final')
