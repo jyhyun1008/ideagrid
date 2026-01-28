@@ -337,7 +337,6 @@ const app = {
     init() {
         this.loadFromStorage();
         this.updateTransform(); 
-        this.render();
         this.setupEvents();
     },
 
@@ -702,7 +701,6 @@ const app = {
             if (userJSON.memo) {
                 this.data = JSON.parse(userJSON.memo)
                 console.log(this.data)
-                this.render();
             } else {
                 const d = localStorage.getItem('mindgrid_final');
                 if(d) this.data = JSON.parse(d);
@@ -711,7 +709,7 @@ const app = {
             const d = localStorage.getItem('mindgrid_final');
             if(d) this.data = JSON.parse(d);
         }
-    
+    this.render();
 }
 };
 
