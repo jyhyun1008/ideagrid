@@ -678,7 +678,8 @@ const app = {
                     },
                     credentials: 'omit',
                 })
-                const fileJSON = mifile.json()
+                const fileJSON = await mifile.json()
+                console.log(fileJSON)
                 if (fileJSON.length > 0) {
                     const data = await fetch(fileJSON[0].url)
                     const dataText = await data.text()
