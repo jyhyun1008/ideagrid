@@ -681,7 +681,7 @@ const app = {
                 const fileJSON = await mifile.json()
                 console.log(fileJSON)
                 if (fileJSON.length > 0) {
-                    const data = await fetch(fileJSON[0].url)
+                    const data = await fetch(fileJSON[0].url, {mode: 'no-cors'})
                     const dataText = await data.text()
                     this.data = JSON.stringify(dataText)
                     render()
