@@ -663,7 +663,7 @@ const app = {
                     },
                     credentials: 'omit',
                 })
-                const fileJSON = mifile.json()
+                const fileJSON = await mifile.json()
                 if (fileJSON.length > 0) {
                     
                     const deleteMifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/delete`, {
