@@ -681,7 +681,7 @@ const app = {
                 const fileJSON = mifile.json()
                 if (fileJSON.length > 0) {
                     const data = await fetch(fileJSON[0].url)
-                    const dataText = data.text()
+                    const dataText = await data.text()
                     this.data = JSON.stringify(dataText)
                     render()
                 }
