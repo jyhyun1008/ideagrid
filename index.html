@@ -293,9 +293,11 @@ if (localStorage.getItem('lightdark')) {
     localStorage.setItem('lightdark', 'dark')
 }
 
+let auth = ''
 
 async function getRemoteHost() {
     if (localStorage.getItem('accessToken')){
+        auth = localStorage.getItem('accessToken')
         var user = await fetch(`https://${localStorage.getItem('host')}/api/users/search-by-username-and-host`, {
             method: 'POST',
             body: JSON.stringify({  
@@ -303,7 +305,7 @@ async function getRemoteHost() {
                 host: 'stella.place'
             }),
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                'Authorization': `Bearer ${auth}`,
                 'Content-Type': 'application/json',
             },
             credentials: 'omit',
@@ -676,7 +678,7 @@ const app = {
                     memo: localStorage.getItem('mindgrid_final')
                 }),
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Authorization': `Bearer ${auth}`,
                     'Content-Type': 'application/json',
                 },
                 credentials: 'omit',
@@ -693,7 +695,7 @@ const app = {
                     userId: remoteHostId,
                 }),
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Authorization': `Bearer ${auth}`,
                     'Content-Type': 'application/json',
                 },
                 credentials: 'omit',
