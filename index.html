@@ -648,6 +648,7 @@ const app = {
         if (localStorage.getItem('accessToken')) {
             const formData = new FormData();
             formData.append("file", blob, "constelgrid_test.json");
+            formData.append("name", "constelgrid_test.json");
 
             if (this.data.memos.length > 0){
 
