@@ -334,8 +334,8 @@ const app = {
         editingId: null
     },
     
-    init() {
-        this.loadFromStorage();
+    async init() {
+        await this.loadFromStorage();
         this.updateTransform(); 
         this.render();
         this.setupEvents();
