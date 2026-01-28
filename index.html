@@ -680,7 +680,7 @@ const app = {
                 })
                 const fileJSON = await mifile.json()
                 if (fileJSON.length > 0) {
-                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(fileJSON[0].url);
+                    const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(fileJSON[0].url);
                     const data = await fetch(proxyUrl)
                     const dataJSON = await data.json()
 
