@@ -643,8 +643,8 @@ const app = {
     },
     async exportData() {
         const dataStr = JSON.stringify(this.data, null, 2);
-        const blob = new Blob([dataStr], { type: "text/plain" });
-        console.log(blob)
+        const blob = new Blob([dataStr], { type: "application/json" });
+        console.log(dataStr)
         if (localStorage.getItem('accessToken')) {
 
             if (this.data.memos.length > 0){
@@ -679,7 +679,7 @@ const app = {
                 const file = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/create`, {
                     method: 'POST',
                     body: JSON.stringify({ 
-                        file: blob,
+                        file: dataStr,
                         name: `constelgrid_test.json`
                     }),
                     headers: {
