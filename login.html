@@ -208,7 +208,7 @@
         localStorage.setItem('host', host)
         localStorage.setItem('code_verifier', codeVerifier);
 
-        console.log(`${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=read%3Aaccount%20write%3Anotes%20read%3Areactions&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`)
+        console.log(`${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=write%3Aaccount%20write%3Anotes%20read%3Areactions&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`)
         location.href = `${authorization_endpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=read%3Aaccount%20write%3Anotes%20read%3Areactions&code_challenge=${codeChallenge}&code_challenge_method=S256&state=${state}`
     }
 </script>

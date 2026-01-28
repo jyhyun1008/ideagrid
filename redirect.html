@@ -9,7 +9,7 @@
         grant_type: "authorization_code",
         client_id: "https://grid.howeverina.studio/login.html",
         redirect_uri: "https://grid.howeverina.studio/redirect.html",
-        scope: "read:account write:notes read:reactions",
+        scope: "write:account write:notes read:reactions",
         code: code,
         code_verifier: localStorage.getItem('code_verifier'),
     }),
