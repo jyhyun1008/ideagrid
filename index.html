@@ -211,6 +211,9 @@
         .btn.misskey {
             background: #86b300; color: white;
         }
+        .btn.none {
+            display: none;
+        }
 
         #status-bar {
             position: fixed; top: 20px; left: 20px;
@@ -260,7 +263,8 @@
         <span style="width:1px; height:20px; background:var(--tool-border); margin:0 5px;"></span>
         <button class="btn misskey" id="signin"><a href="/login.html">로그인</a></button>
         <button class="btn" id="export" onclick="app.exportData()">내보내기</button>
-        <button class="btn" onclick="document.getElementById('file-input').click()">불러오기</button>
+        <button class="btn none misskey" id="fetch" onclick="app.fetchData()">불러오기</button>
+        <button class="btn" id="import" onclick="document.getElementById('file-input').click()">불러오기</button>
         <button class="btn danger" onclick="app.clearBoard()">화면 비우기</button>
         <button class="btn" id="toggledark" onclick="app.toggledark()">파란하늘</button>
     </div>
@@ -298,8 +302,9 @@ if (localStorage.getItem('lightdark')) {
 
 if (localStorage.getItem('accessToken')) {
     document.querySelector('#signin > a').innerText = '로그아웃'
-    document.querySelector('#export').innerText = '↺동기화'
     document.querySelector('#export').classList.add('misskey')
+    document.querySelector('#import').classList.add('none')
+    document.querySelector('#fetch').classList.remove('none')
 }
 
 const app = {
@@ -619,6 +624,33 @@ const app = {
             this.render(); this.saveToStorage();
         }
     },
+    async fetchData() {
+        if (localStorage.getItem('accessToken')) {
+            if (confirm("불러오시겠습니까? 기존 캔버스를 덮어씌웁니다.")) {
+
+                const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        name: `constelgrid_test.json`
+                    }),
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit',
+                })
+                    const fileJSON = await mifile.json()
+                if (fileJSON.length > 0) {
+                    const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(fileJSON[0].url);
+                    const data = await fetch(proxyUrl)
+                    const dataJSON = await data.json()
+
+                    this.data = dataJSON
+                    this.render()
+                }
+            }
+        }
+    },
     async exportData() {
         const dataStr = JSON.stringify(this.data, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
@@ -628,8 +660,7 @@ const app = {
             formData.append("file", blob, "constelgrid_test.json");
             formData.append("name", "constelgrid_test.json");
 
-            if (this.data.memos.length > 0){
-
+            if (confirm("저장하시겠습니까? 기존 드라이브 데이터를 덮어씌웁니다.")) {
                 const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
                     method: 'POST',
                     body: JSON.stringify({ 
@@ -665,28 +696,7 @@ const app = {
                     },
                     credentials: 'omit',
                 })
-            } else {
-                
-                const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        name: `constelgrid_test.json`
-                    }),
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'omit',
-                })
-                const fileJSON = await mifile.json()
-                if (fileJSON.length > 0) {
-                    const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(fileJSON[0].url);
-                    const data = await fetch(proxyUrl)
-                    const dataJSON = await data.json()
-
-                    this.data = dataJSON
-                    this.render()
-                }
+                alert("저장되었습니다.")
             }
         } else {
             const url = URL.createObjectURL(blob);
