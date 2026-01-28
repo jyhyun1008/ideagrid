@@ -646,24 +646,12 @@ const app = {
         const blob = new Blob([dataStr], { type: "application/json" });
         if (localStorage.getItem('accessToken')) {
 
-            const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    name: `constelgrid_test.json`
-                }),
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'omit',
-            })
-            const fileJSON = mifile.json()
-            if (fileJSON.length > 1) {
-                
-                const deleteMifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/delete`, {
+            if (this.data.memos.length > 0){
+
+                const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        fileId: fileJSON[0].id
+                    body: JSON.stringify({ 
+                        name: `constelgrid_test.json`
                     }),
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -671,20 +659,54 @@ const app = {
                     },
                     credentials: 'omit',
                 })
-            }
+                const fileJSON = mifile.json()
+                if (fileJSON.length > 0) {
+                    
+                    const deleteMifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/delete`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            fileId: fileJSON[0].id
+                        }),
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'omit',
+                    })
+                }
 
-            const file = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/create`, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    file: blob,
-                    name: `constelgrid_test.json`
-                }),
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'omit',
-            })
+                const file = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/create`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        file: blob,
+                        name: `constelgrid_test.json`
+                    }),
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit',
+                })
+            } else {
+                
+                const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        name: `constelgrid_test.json`
+                    }),
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit',
+                })
+                const fileJSON = mifile.json()
+                if (fileJSON.length > 0) {
+                    const data = await fetch(fileJSON[0].url)
+                    const dataText = data.text()
+                    this.data = JSON.stringify(dataText)
+                }
+            }
         } else {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -692,25 +714,8 @@ const app = {
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
     },
-    async importData(input) {
+    importData(input) {
 
-        if (localStorage.getItem('accessToken')) {
-            const mifile = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/find`, {
-                method: 'POST',
-                body: JSON.stringify({ 
-                    name: `constelgrid_test.json`
-                }),
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'omit',
-            })
-            const fileJSON = mifile.json()
-            if (fileJSON.length == 0) {
-                exportData()
-            }
-        } else {
             const file = input.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -724,7 +729,7 @@ const app = {
             };
             reader.readAsText(file);
             input.value = '';
-        }
+
     },
     saveToStorage() { 
         localStorage.setItem('mindgrid_final', JSON.stringify(this.data)); 
