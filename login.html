@@ -182,7 +182,7 @@
         }
     }
 
-    if (localStorage.getItem('accessToken')) {
+    if (!localStorage.getItem('accessToken')) {
 
         let codeChallenge
         let codeVerifier
@@ -218,6 +218,7 @@
         localStorage.removeItem('code_verifier')
         localStorage.removeItem('token_endpoint')
         localStorage.removeItem('host')
+        location.href('https://grid.howeverina.studio/index.html')
     }
 
 </script>
