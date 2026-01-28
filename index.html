@@ -334,8 +334,8 @@ const app = {
         editingId: null
     },
     
-    async init() {
-        await this.loadFromStorage();
+    init() {
+        this.loadFromStorage();
         this.updateTransform(); 
         this.render();
         this.setupEvents();
@@ -701,6 +701,7 @@ const app = {
             var userJSON = await user.json()
             if (userJSON.memo) {
                 this.data = JSON.parse(userJSON.memo)
+                this.render();
                 console.log(JSON.parse(userJSON.memo))
             } else {
                 const d = localStorage.getItem('mindgrid_final');
