@@ -643,7 +643,7 @@ const app = {
     },
     async exportData() {
         const dataStr = JSON.stringify(this.data, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
+        const blob = new Blob([dataStr], { type: "text/plain" });
         if (localStorage.getItem('accessToken')) {
 
             if (this.data.memos.length > 0){
@@ -682,7 +682,9 @@ const app = {
                 // Create a Uint8Array view of the buffer to access the bytes
                 const uint8Array = new Uint8Array(arrayBuffer);
                 
+                console.log(uint8Array)
                 return uint8Array;
+
                 }
 
                 const file = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/create`, {
