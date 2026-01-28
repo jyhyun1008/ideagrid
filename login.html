@@ -116,6 +116,9 @@
         .btn.primary { background: var(--accent-color); color: white; border: none; }
         .btn.primary:hover { background: var(--accent-snd-color) }
         .btn.danger { color: var(--danger-color); }
+        .btn.misskey {
+            background: #86b300; color: white;
+        }
 
         #parent-wrapper {
             display: flex;
@@ -167,7 +170,7 @@
             <input id="instance" placeholder="서버 주소"></input>
             <div id="toolbar">
                 <span class="btn"><a href="/about.html">소개</a></span>
-                <span class="btn" onclick="fetchServer(document.querySelector('#instance').value)">로그인</span>
+                <span class="btn misskey" onclick="fetchServer(document.querySelector('#instance').value)">로그인</span>
                 <span class="btn"><a href="/index.html">로컬에서 사용</a></span>
             </div>
         </div>
