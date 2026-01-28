@@ -675,10 +675,21 @@ const app = {
                     })
                 }
 
+                async function blobToUint8Array(blob) {
+                // Get the raw ArrayBuffer from the Blob
+                const arrayBuffer = await blob.arrayBuffer();
+                
+                // Create a Uint8Array view of the buffer to access the bytes
+                const uint8Array = new Uint8Array(arrayBuffer);
+                
+                return uint8Array;
+                }
+}
+
                 const file = await fetch(`https://${localStorage.getItem('host')}/api/drive/files/create`, {
                     method: 'POST',
                     body: JSON.stringify({ 
-                        file: blob,
+                        file: blobToUint8Array(blob),
                         name: `constelgrid_test.json`
                     }),
                     headers: {
