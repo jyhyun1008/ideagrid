@@ -297,7 +297,7 @@ if (localStorage.getItem('lightdark')) {
 }
 
 if (localStorage.getItem('accessToken')) {
-    document.querySelector('#signin').innerText = '로그아웃'
+    document.querySelector('#signin > a').innerText = '로그아웃'
     document.querySelector('#signin').classList.add('misskey')
     document.querySelector('#export').innerText = '↺동기화'
     document.querySelector('#export').classList.add('misskey')
