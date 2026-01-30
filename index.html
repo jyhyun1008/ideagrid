@@ -656,7 +656,7 @@ const app = {
                     const dataJSON = await data.json()
                     const splitted = dataJSON.contents.split('base64,')[1].split('"')[0]
 
-                    const decodedData = atob(splitted)
+                    const decodedData = decodeURIComponent(escape(atob(splitted)))
                     const parsedData = JSON.parse(decodedData)
 
                     this.data = parsedData
