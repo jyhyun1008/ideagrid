@@ -654,10 +654,10 @@ const app = {
                     const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(fileJSON[0].url);
                     const data = await fetch(proxyUrl)
                     const dataJSON = await data.json()
-.                   const splitted = dataJSON.split('base64,')[1].split('"')[0]
+                    const splitted = dataJSON.split('base64,')[1].split('"')[0]
 
                     const decodedData = atob(splitted)
-.                   const parsedData = JSON.parse(decodedData)
+                    const parsedData = JSON.parse(decodedData)
 
                     this.data = parsedData
                     this.render()
